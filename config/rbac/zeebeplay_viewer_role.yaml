@@ -1,0 +1,27 @@
+# permissions for end users to view zeebeplays.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: zeebeplay-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: zeebe-play-operator
+    app.kubernetes.io/part-of: zeebe-play-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: zeebeplay-viewer-role
+rules:
+- apiGroups:
+  - camunda.io
+  resources:
+  - zeebeplays
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - camunda.io
+  resources:
+  - zeebeplays/status
+  verbs:
+  - get

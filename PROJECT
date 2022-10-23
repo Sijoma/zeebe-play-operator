@@ -1,6 +1,25 @@
 domain: camunda.io
 layout:
 - go.kubebuilder.io/v3
+plugins:
+  deploy-image.go.kubebuilder.io/v1-alpha:
+    resources:
+    - domain: camunda.io
+      kind: ZeebePlay
+      options:
+        containerPort: "8080"
+        image: ghcr.io/camunda-community-hub/zeebe-play:1.0.0
+        runAsUser: "1001"
+      version: v1alpha1
 projectName: zeebe-play-operator
 repo: github.com/sijoma/zeebe-play-operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: camunda.io
+  kind: ZeebePlay
+  path: github.com/sijoma/zeebe-play-operator/api/v1alpha1
+  version: v1alpha1
 version: "3"

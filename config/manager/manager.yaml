@@ -72,6 +72,9 @@ spec:
         - --leader-elect
         image: controller:latest
         name: manager
+        env:
+        - name: ZEEBEPLAY_IMAGE 
+          value: ghcr.io/camunda-community-hub/zeebe-play:1.0.0
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
