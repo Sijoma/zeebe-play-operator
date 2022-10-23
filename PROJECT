@@ -1,0 +1,6 @@
+domain: camunda.io
+layout:
+- go.kubebuilder.io/v3
+projectName: zeebe-play-operator
+repo: github.com/sijoma/zeebe-play-operator
+version: "3"
