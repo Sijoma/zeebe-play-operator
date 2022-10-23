@@ -1,3 +1,3 @@
 FROM gcr.io/distroless/static:nonroot
-COPY manager /manager
-ENTRYPOINT ["/manager"]
+COPY zeebe-play-operator /zeebe-play-operator
+ENTRYPOINT ["/zeebe-play-operator"]
