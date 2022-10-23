@@ -39,7 +39,7 @@ import (
 	camundaiov1alpha1 "github.com/sijoma/zeebe-play-operator/api/v1alpha1"
 )
 
-const zeebeplayFinalizer = ".camunda.io/finalizer"
+const zeebeplayFinalizer = "camunda.io/finalizer"
 
 // Definitions to manage status conditions
 const (
@@ -330,34 +330,6 @@ func (r *ZeebePlayReconciler) deploymentForZeebePlay(
 					Labels: ls,
 				},
 				Spec: corev1.PodSpec{
-					// TODO(user): Uncomment the following code to configure the nodeAffinity expression
-					// according to the platforms which are supported by your solution. It is considered
-					// best practice to support multiple architectures. build your manager image using the
-					// makefile target docker-buildx. Also, you can use docker manifest inspect <image>
-					// to check what are the platforms supported.
-					// More info: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
-					//Affinity: &corev1.Affinity{
-					//	NodeAffinity: &corev1.NodeAffinity{
-					//		RequiredDuringSchedulingIgnoredDuringExecution: &corev1.NodeSelector{
-					//			NodeSelectorTerms: []corev1.NodeSelectorTerm{
-					//				{
-					//					MatchExpressions: []corev1.NodeSelectorRequirement{
-					//						{
-					//							Key:      "kubernetes.io/arch",
-					//							Operator: "In",
-					//							Values:   []string{"amd64", "arm64", "ppc64le", "s390x"},
-					//						},
-					//						{
-					//							Key:      "kubernetes.io/os",
-					//							Operator: "In",
-					//							Values:   []string{"linux"},
-					//						},
-					//					},
-					//				},
-					//			},
-					//		},
-					//	},
-					//},
 					SecurityContext: &corev1.PodSecurityContext{
 						RunAsNonRoot: &[]bool{true}[0],
 						// IMPORTANT: seccomProfile was introduced with Kubernetes 1.19
@@ -383,10 +355,16 @@ func (r *ZeebePlayReconciler) deploymentForZeebePlay(
 								},
 							},
 						},
-						Ports: []corev1.ContainerPort{{
-							ContainerPort: 8080,
-							Name:          "zeebeplay",
-						}},
+						Ports: []corev1.ContainerPort{
+							{
+								ContainerPort: 8080,
+								Name:          "http",
+							},
+							{
+								ContainerPort: 26500,
+								Name:          "grpc",
+							},
+						},
 					}},
 				},
 			},
