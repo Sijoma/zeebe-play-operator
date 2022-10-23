@@ -67,7 +67,7 @@ spec:
         #   type: RuntimeDefault
       containers:
       - command:
-        - /manager
+        - /zeebe-play-operator
         args:
         - --leader-elect
         image: controller:latest
