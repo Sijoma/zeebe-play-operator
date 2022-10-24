@@ -495,14 +495,14 @@ func (r *ZeebePlayReconciler) ingressForZeebePlay(zeebeplay *camundaiov1alpha1.Z
 	domain := ".play.ultrawombat.com"
 
 	ingressServiceBackendHTTP := networkingv1.IngressServiceBackend{
-		Name: "zeebe-play",
+		Name: zeebeplay.Name,
 		Port: networkingv1.ServiceBackendPort{
 			Name: "http",
 		},
 	}
 
 	ingressServiceBackendGRPC := networkingv1.IngressServiceBackend{
-		Name: "zeebe-play",
+		Name: zeebeplay.Name,
 		Port: networkingv1.ServiceBackendPort{
 			Name: "grpc",
 		},
@@ -602,5 +602,7 @@ func (r *ZeebePlayReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&camundaiov1alpha1.ZeebePlay{}).
 		Owns(&appsv1.Deployment{}).
+		Owns(&corev1.Service{}).
+		Owns(&networkingv1.Ingress{}).
 		Complete(r)
 }
