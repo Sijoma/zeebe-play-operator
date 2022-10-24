@@ -492,6 +492,7 @@ func (r *ZeebePlayReconciler) serviceForZeebePlay(zeebeplay *camundaiov1alpha1.Z
 func (r *ZeebePlayReconciler) ingressForZeebePlay(zeebeplay *camundaiov1alpha1.ZeebePlay) (*networkingv1.Ingress, error) {
 	ingressClassName := "nginx"
 	pathType := networkingv1.PathTypeImplementationSpecific
+	domain := "-play.ultrawombat.com"
 
 	ingressServiceBackendHTTP := networkingv1.IngressServiceBackend{
 		Name: "zeebe-play",
@@ -537,13 +538,13 @@ func (r *ZeebePlayReconciler) ingressForZeebePlay(zeebeplay *camundaiov1alpha1.Z
 			IngressClassName: &ingressClassName,
 			Rules: []networkingv1.IngressRule{
 				{
-					Host: zeebeplay.Name + "play.ultrawombat.com",
+					Host: zeebeplay.Name + domain,
 					IngressRuleValue: networkingv1.IngressRuleValue{
 						HTTP: &ingressRuleValueHTTP,
 					},
 				},
 				{
-					Host: zeebeplay.Name + "-grpc" + "play.ultrawombat.com",
+					Host: zeebeplay.Name + "-grpc" + domain,
 					IngressRuleValue: networkingv1.IngressRuleValue{
 						HTTP: &ingressRuleValueGRPC,
 					},
@@ -552,8 +553,8 @@ func (r *ZeebePlayReconciler) ingressForZeebePlay(zeebeplay *camundaiov1alpha1.Z
 			TLS: []networkingv1.IngressTLS{
 				{
 					Hosts: []string{
-						zeebeplay.Name + "play.ultrawombat.com",
-						zeebeplay.Name + "-grpc" + "play.ultrawombat.com",
+						zeebeplay.Name + domain,
+						zeebeplay.Name + "-grpc" + domain,
 					},
 				},
 			},
