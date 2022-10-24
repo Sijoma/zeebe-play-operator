@@ -25,6 +25,7 @@ import (
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	networkingv1 "k8s.io/api/networking/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -279,6 +280,86 @@ func (r *ZeebePlayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		return ctrl.Result{Requeue: true}, nil
 	}
 
+	// Check if the service already exists, if not create a new one
+	foundService := &corev1.Service{}
+	err = r.Get(ctx, types.NamespacedName{Name: zeebeplay.Name, Namespace: namespace.Name}, foundService)
+	if err != nil && apierrors.IsNotFound(err) {
+		// Define a new deployment
+		sev, err := r.serviceForZeebePlay(zeebeplay)
+		if err != nil {
+			log.Error(err, "Failed to define new Service resource for ZeebePlay")
+
+			// The following implementation will update the status
+			meta.SetStatusCondition(&zeebeplay.Status.Conditions, metav1.Condition{Type: typeAvailableZeebePlay,
+				Status: metav1.ConditionFalse, Reason: "Reconciling",
+				Message: fmt.Sprintf("Failed to create Service for the custom resource (%s): (%s)", zeebeplay.Name, err)})
+
+			if err := r.Status().Update(ctx, zeebeplay); err != nil {
+				log.Error(err, "Failed to update ZeebePlay status")
+				return ctrl.Result{}, err
+			}
+
+			return ctrl.Result{}, err
+		}
+
+		log.Info("Creating a new Service",
+			"Service.Namespace", sev.Namespace, "Service.Name", sev.Name)
+		if err = r.Create(ctx, sev); err != nil {
+			log.Error(err, "Failed to create new Service",
+				"Service.Namespace", sev.Namespace, "Service.Name", sev.Name)
+			return ctrl.Result{}, err
+		}
+
+		// Service created successfully
+		// We will requeue the reconciliation so that we can ensure the state
+		// and move forward for the next operations
+		return ctrl.Result{RequeueAfter: time.Minute}, nil
+	} else if err != nil {
+		log.Error(err, "Failed to get Deployment")
+		// Let's return the error for the reconciliation be re-trigged again
+		return ctrl.Result{}, err
+	}
+
+	// Check if the service already exists, if not create a new one
+	foundIngress := &networkingv1.Ingress{}
+	err = r.Get(ctx, types.NamespacedName{Name: zeebeplay.Name, Namespace: namespace.Name}, foundIngress)
+	if err != nil && apierrors.IsNotFound(err) {
+		// Define a new deployment
+		ing, err := r.ingressForZeebePlay(zeebeplay)
+		if err != nil {
+			log.Error(err, "Failed to define new Ingress resource for ZeebePlay")
+
+			// The following implementation will update the status
+			meta.SetStatusCondition(&zeebeplay.Status.Conditions, metav1.Condition{Type: typeAvailableZeebePlay,
+				Status: metav1.ConditionFalse, Reason: "Reconciling",
+				Message: fmt.Sprintf("Failed to create Ingress for the custom resource (%s): (%s)", zeebeplay.Name, err)})
+
+			if err := r.Status().Update(ctx, zeebeplay); err != nil {
+				log.Error(err, "Failed to update ZeebePlay status")
+				return ctrl.Result{}, err
+			}
+
+			return ctrl.Result{}, err
+		}
+
+		log.Info("Creating a new Ingress",
+			"Ingress.Namespace", ing.Namespace, "Ingress.Name", ing.Name)
+		if err = r.Create(ctx, ing); err != nil {
+			log.Error(err, "Failed to create new Ingress",
+				"Ingress.Namespace", ing.Namespace, "Ingress.Name", ing.Name)
+			return ctrl.Result{}, err
+		}
+
+		// Service created successfully
+		// We will requeue the reconciliation so that we can ensure the state
+		// and move forward for the next operations
+		return ctrl.Result{RequeueAfter: time.Minute}, nil
+	} else if err != nil {
+		log.Error(err, "Failed to get Ingress")
+		// Let's return the error for the reconciliation be re-trigged again
+		return ctrl.Result{}, err
+	}
+
 	// The following implementation will update the status
 	meta.SetStatusCondition(&zeebeplay.Status.Conditions, metav1.Condition{Type: typeAvailableZeebePlay,
 		Status: metav1.ConditionTrue, Reason: "Reconciling",
@@ -294,17 +375,6 @@ func (r *ZeebePlayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 
 // finalizeZeebePlay will perform the required operations before delete the CR.
 func (r *ZeebePlayReconciler) doFinalizerOperationsForZeebePlay(cr *camundaiov1alpha1.ZeebePlay) {
-	// TODO(user): Add the cleanup steps that the operator
-	// needs to do before the CR can be deleted. Examples
-	// of finalizers include performing backups and deleting
-	// resources that are not owned by this CR, like a PVC.
-
-	// Note: It is not recommended to use finalizers with the purpose of delete resources which are
-	// created and managed in the reconciliation. These ones, such as the Deployment created on this reconcile,
-	// are defined as depended of the custom resource. See that we use the method ctrl.SetControllerReference.
-	// to set the ownerRef which means that the Deployment will be deleted by the Kubernetes API.
-	// More info: https://kubernetes.io/docs/tasks/administer-cluster/use-cascading-deletion/
-
 	// The following implementation will raise an event
 	r.Recorder.Event(cr, "Warning", "Deleting",
 		fmt.Sprintf("Custom Resource %s is being deleted from the namespace %s",
@@ -386,6 +456,114 @@ func (r *ZeebePlayReconciler) deploymentForZeebePlay(
 		return nil, err
 	}
 	return dep, nil
+}
+
+func (r *ZeebePlayReconciler) serviceForZeebePlay(zeebeplay *camundaiov1alpha1.ZeebePlay) (*corev1.Service, error) {
+	ls := labelsForZeebePlay(zeebeplay.Name)
+
+	service := &corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      zeebeplay.Name,
+			Namespace: zeebeplay.Name,
+		},
+		Spec: corev1.ServiceSpec{
+			Selector: ls,
+			Ports: []corev1.ServicePort{
+				{
+					Port: 8080,
+					Name: "http",
+				},
+				{
+					Port: 26500,
+					Name: "grpc",
+				},
+			},
+		},
+	}
+
+	// Set the ownerRef for the Service
+	if err := ctrl.SetControllerReference(zeebeplay, service, r.Scheme); err != nil {
+		return nil, err
+	}
+	return service, nil
+}
+
+func (r *ZeebePlayReconciler) ingressForZeebePlay(zeebeplay *camundaiov1alpha1.ZeebePlay) (*networkingv1.Ingress, error) {
+	ingressClassName := "nginx"
+	pathType := networkingv1.PathTypeImplementationSpecific
+
+	ingressServiceBackendHTTP := networkingv1.IngressServiceBackend{
+		Name: "zeebe-play",
+		Port: networkingv1.ServiceBackendPort{
+			Name: "http",
+		},
+	}
+
+	ingressServiceBackendGRPC := networkingv1.IngressServiceBackend{
+		Name: "zeebe-play",
+		Port: networkingv1.ServiceBackendPort{
+			Name: "grpc",
+		},
+	}
+	ingressRuleValueHTTP := networkingv1.HTTPIngressRuleValue{
+		Paths: []networkingv1.HTTPIngressPath{
+			{
+				PathType: &pathType,
+				Backend: networkingv1.IngressBackend{
+					Service: &ingressServiceBackendHTTP,
+				},
+			},
+		},
+	}
+
+	ingressRuleValueGRPC := networkingv1.HTTPIngressRuleValue{
+		Paths: []networkingv1.HTTPIngressPath{
+			{
+				PathType: &pathType,
+				Backend: networkingv1.IngressBackend{
+					Service: &ingressServiceBackendGRPC,
+				},
+			},
+		},
+	}
+
+	ingress := &networkingv1.Ingress{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      zeebeplay.Name,
+			Namespace: zeebeplay.Name,
+		},
+		Spec: networkingv1.IngressSpec{
+			IngressClassName: &ingressClassName,
+			Rules: []networkingv1.IngressRule{
+				{
+					Host: zeebeplay.Name + "play.ultrawombat.com",
+					IngressRuleValue: networkingv1.IngressRuleValue{
+						HTTP: &ingressRuleValueHTTP,
+					},
+				},
+				{
+					Host: zeebeplay.Name + "-grpc" + "play.ultrawombat.com",
+					IngressRuleValue: networkingv1.IngressRuleValue{
+						HTTP: &ingressRuleValueGRPC,
+					},
+				},
+			},
+			TLS: []networkingv1.IngressTLS{
+				{
+					Hosts: []string{
+						zeebeplay.Name + "play.ultrawombat.com",
+						zeebeplay.Name + "-grpc" + "play.ultrawombat.com",
+					},
+				},
+			},
+		},
+	}
+
+	// Set the ownerRef for the Service
+	if err := ctrl.SetControllerReference(zeebeplay, ingress, r.Scheme); err != nil {
+		return nil, err
+	}
+	return ingress, nil
 }
 
 // labelsForZeebePlay returns the labels for selecting the resources
