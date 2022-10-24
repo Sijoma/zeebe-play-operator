@@ -492,7 +492,7 @@ func (r *ZeebePlayReconciler) serviceForZeebePlay(zeebeplay *camundaiov1alpha1.Z
 func (r *ZeebePlayReconciler) ingressForZeebePlay(zeebeplay *camundaiov1alpha1.ZeebePlay) (*networkingv1.Ingress, error) {
 	ingressClassName := "nginx"
 	pathType := networkingv1.PathTypeImplementationSpecific
-	domain := "-play.ultrawombat.com"
+	domain := ".play.ultrawombat.com"
 
 	ingressServiceBackendHTTP := networkingv1.IngressServiceBackend{
 		Name: "zeebe-play",
