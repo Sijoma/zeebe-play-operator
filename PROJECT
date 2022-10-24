@@ -16,7 +16,7 @@ repo: github.com/sijoma/zeebe-play-operator
 resources:
 - api:
     crdVersion: v1
-    namespaced: true
+    namespaced: false
   controller: true
   domain: camunda.io
   kind: ZeebePlay

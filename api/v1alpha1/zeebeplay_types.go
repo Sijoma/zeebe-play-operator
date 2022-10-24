@@ -53,6 +53,7 @@ type ZeebePlayStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:resource:scope=Cluster,path=zeebeplays,shortName=zp
 
 // ZeebePlay is the Schema for the zeebeplays API
 type ZeebePlay struct {

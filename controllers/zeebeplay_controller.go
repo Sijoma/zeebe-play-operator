@@ -118,8 +118,6 @@ func (r *ZeebePlayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		}
 	}
 
-	// Let's add a finalizer. Then, we can define some operations which should
-	// occurs before the custom resource to be deleted.
 	// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/finalizers
 	if !controllerutil.ContainsFinalizer(zeebeplay, zeebeplayFinalizer) {
 		log.Info("Adding Finalizer for ZeebePlay")
@@ -191,9 +189,19 @@ func (r *ZeebePlayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		return ctrl.Result{}, nil
 	}
 
+	namespace := new(corev1.Namespace)
+	namespace.SetName(zeebeplay.Name)
+	_, err = ctrl.CreateOrUpdate(ctx, r.Client, namespace, func() error {
+		return ctrl.SetControllerReference(zeebeplay, namespace, r.Scheme)
+	})
+	if err != nil {
+		log.Error(err, "unable to create namespace")
+		return ctrl.Result{}, err
+	}
+
 	// Check if the deployment already exists, if not create a new one
 	found := &appsv1.Deployment{}
-	err = r.Get(ctx, types.NamespacedName{Name: zeebeplay.Name, Namespace: zeebeplay.Namespace}, found)
+	err = r.Get(ctx, types.NamespacedName{Name: zeebeplay.Name, Namespace: namespace.Name}, found)
 	if err != nil && apierrors.IsNotFound(err) {
 		// Define a new deployment
 		dep, err := r.deploymentForZeebePlay(zeebeplay)
@@ -318,7 +326,7 @@ func (r *ZeebePlayReconciler) deploymentForZeebePlay(
 	dep := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      zeebeplay.Name,
-			Namespace: zeebeplay.Namespace,
+			Namespace: zeebeplay.Name,
 		},
 		Spec: appsv1.DeploymentSpec{
 			Replicas: &replicas,
