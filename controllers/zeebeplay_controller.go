@@ -333,6 +333,12 @@ func (r *ZeebePlayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		Status: metav1.ConditionTrue, Reason: "Reconciling",
 		Message: fmt.Sprintf("Deployment for custom resource (%s) created successfully", zeebeplay.Name)})
 
+	httpHost := foundIngress.Spec.Rules[0].Host
+	grpcHost := foundIngress.Spec.Rules[1].Host
+
+	zeebeplay.Status.HttpEndpoint = httpHost
+	zeebeplay.Status.GrpcEndpoint = grpcHost
+
 	if err := r.Status().Update(ctx, zeebeplay); err != nil {
 		log.Error(err, "Failed to update ZeebePlay status")
 		return ctrl.Result{}, err

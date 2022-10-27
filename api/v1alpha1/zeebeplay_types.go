@@ -40,6 +40,9 @@ type ZeebePlayStatus struct {
 	// For further information see: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#typical-status-properties
 
 	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"`
+
+	HttpEndpoint string `json:"httpEndpoint,omitempty"`
+	GrpcEndpoint string `json:"grpcEndpoint,omitempty"`
 }
 
 //+kubebuilder:object:root=true
