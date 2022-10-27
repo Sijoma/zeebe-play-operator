@@ -112,6 +112,10 @@ spec:
                   - type
                   type: object
                 type: array
+              grpcEndpoint:
+                type: string
+              httpEndpoint:
+                type: string
             type: object
         type: object
     served: true
