@@ -48,6 +48,9 @@ type ZeebePlayStatus struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 //+kubebuilder:resource:scope=Cluster,path=zeebeplays,shortName=zp
+// +kubebuilder:printcolumn:name="Death Date",type=string,JSONPath=`.spec.deathDate`
+// +kubebuilder:printcolumn:name="HTTP",type=string,JSONPath=`.status.httpEndpoint`
+// +kubebuilder:printcolumn:name="GRPC",type=string,JSONPath=`.status.grpcEndpoint`
 
 // ZeebePlay is the Schema for the zeebeplays API
 type ZeebePlay struct {

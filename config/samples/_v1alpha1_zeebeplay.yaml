@@ -1,6 +1,6 @@
 apiVersion: play.camunda.io/v1alpha1
 kind: ZeebePlay
 metadata:
-  name: simon
+  generateName: simon
 spec:
   deathDate: "2018-03-20T09:12:28Z"

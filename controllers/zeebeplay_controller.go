@@ -192,7 +192,7 @@ func (r *ZeebePlayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		return ctrl.Result{}, nil
 	}
 
-	if zeebeplay.Spec.DeathDate.After(time.Now()) {
+	if time.Now().After(zeebeplay.Spec.DeathDate.Time) {
 		err = r.Delete(ctx, zeebeplay)
 		log.Error(err, "unable to delete expired zeebe-play instance")
 		return ctrl.Result{}, err
@@ -333,6 +333,7 @@ func (r *ZeebePlayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		Status: metav1.ConditionTrue, Reason: "Reconciling",
 		Message: fmt.Sprintf("Deployment for custom resource (%s) created successfully", zeebeplay.Name)})
 
+	// We are sure that these are already set.
 	httpHost := foundIngress.Spec.Rules[0].Host
 	grpcHost := foundIngress.Spec.Rules[1].Host
 
