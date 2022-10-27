@@ -17,7 +17,17 @@ spec:
     singular: zeebeplay
   scope: Cluster
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .spec.deathDate
+      name: Death Date
+      type: string
+    - jsonPath: .status.httpEndpoint
+      name: HTTP
+      type: string
+    - jsonPath: .status.grpcEndpoint
+      name: GRPC
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: ZeebePlay is the Schema for the zeebeplays API
