@@ -345,7 +345,9 @@ func (r *ZeebePlayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		return ctrl.Result{}, err
 	}
 
-	return ctrl.Result{}, nil
+	return ctrl.Result{
+		RequeueAfter: time.Second * 20,
+	}, nil
 }
 
 // finalizeZeebePlay will perform the required operations before delete the CR.
