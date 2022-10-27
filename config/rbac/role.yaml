@@ -18,32 +18,6 @@ rules:
   - update
   - watch
 - apiGroups:
-  - camunda.io
-  resources:
-  - zeebeplays
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - camunda.io
-  resources:
-  - zeebeplays/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - camunda.io
-  resources:
-  - zeebeplays/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
   - ""
   resources:
   - events
@@ -83,3 +57,29 @@ rules:
   - patch
   - update
   - watch
+- apiGroups:
+  - play.camunda.io
+  resources:
+  - zeebeplays
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - play.camunda.io
+  resources:
+  - zeebeplays/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - play.camunda.io
+  resources:
+  - zeebeplays/status
+  verbs:
+  - get
+  - patch
+  - update

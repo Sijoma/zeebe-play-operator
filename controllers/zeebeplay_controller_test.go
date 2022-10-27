@@ -67,7 +67,7 @@ var _ = Describe("ZeebePlay controller", func() {
 						Name: ZeebePlayName,
 					},
 					Spec: camundaiov1alpha1.ZeebePlaySpec{
-						Size: 1,
+						DeathDate: metav1.Now(),
 					},
 				}
 
@@ -126,7 +126,7 @@ var _ = Describe("ZeebePlay controller", func() {
 					latestStatusCondition := zeebeplay.Status.Conditions[len(zeebeplay.Status.Conditions)-1]
 					expectedLatestStatusCondition := metav1.Condition{Type: typeAvailableZeebePlay,
 						Status: metav1.ConditionTrue, Reason: "Reconciling",
-						Message: fmt.Sprintf("Deployment for custom resource (%s) with %d replicas created successfully", zeebeplay.Name, zeebeplay.Spec.Size)}
+						Message: fmt.Sprintf("Deployment for custom resource (%s)", zeebeplay.Name)}
 					if latestStatusCondition != expectedLatestStatusCondition {
 						return fmt.Errorf("The latest status condition added to the zeebeplay instance is not as expected")
 					}

@@ -40,7 +40,7 @@ import (
 	camundaiov1alpha1 "github.com/sijoma/zeebe-play-operator/api/v1alpha1"
 )
 
-const zeebeplayFinalizer = "camunda.io/finalizer"
+const zeebeplayFinalizer = "play.camunda.io/finalizer"
 
 // Definitions to manage status conditions
 const (
@@ -61,9 +61,9 @@ type ZeebePlayReconciler struct {
 // when the command <make manifests> is executed.
 // To know more about markers see: https://book.kubebuilder.io/reference/markers.html
 
-//+kubebuilder:rbac:groups=camunda.io,resources=zeebeplays,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=camunda.io,resources=zeebeplays/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=camunda.io,resources=zeebeplays/finalizers,verbs=update
+//+kubebuilder:rbac:groups=play.camunda.io,resources=zeebeplays,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=play.camunda.io,resources=zeebeplays/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=play.camunda.io,resources=zeebeplays/finalizers,verbs=update
 //+kubebuilder:rbac:groups=core,resources=events,verbs=create;patch
 //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;watch
@@ -192,6 +192,12 @@ func (r *ZeebePlayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		return ctrl.Result{}, nil
 	}
 
+	if zeebeplay.Spec.DeathDate.After(time.Now()) {
+		err = r.Delete(ctx, zeebeplay)
+		log.Error(err, "unable to delete expired zeebe-play instance")
+		return ctrl.Result{}, err
+	}
+
 	namespace := new(corev1.Namespace)
 	namespace.SetName(zeebeplay.Name)
 	_, err = ctrl.CreateOrUpdate(ctx, r.Client, namespace, func() error {
@@ -240,45 +246,6 @@ func (r *ZeebePlayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		log.Error(err, "Failed to get Deployment")
 		// Let's return the error for the reconciliation be re-trigged again
 		return ctrl.Result{}, err
-	}
-
-	// The CRD API is defining that the ZeebePlay type, have a ZeebePlaySpec.Size field
-	// to set the quantity of Deployment instances is the desired state on the cluster.
-	// Therefore, the following code will ensure the Deployment size is the same as defined
-	// via the Size spec of the Custom Resource which we are reconciling.
-	size := zeebeplay.Spec.Size
-	if *found.Spec.Replicas != size {
-		found.Spec.Replicas = &size
-		if err = r.Update(ctx, found); err != nil {
-			log.Error(err, "Failed to update Deployment",
-				"Deployment.Namespace", found.Namespace, "Deployment.Name", found.Name)
-
-			// Re-fetch the zeebeplay Custom Resource before update the status
-			// so that we have the latest state of the resource on the cluster and we will avoid
-			// raise the issue "the object has been modified, please apply
-			// your changes to the latest version and try again" which would re-trigger the reconciliation
-			if err := r.Get(ctx, req.NamespacedName, zeebeplay); err != nil {
-				log.Error(err, "Failed to re-fetch zeebeplay")
-				return ctrl.Result{}, err
-			}
-
-			// The following implementation will update the status
-			meta.SetStatusCondition(&zeebeplay.Status.Conditions, metav1.Condition{Type: typeAvailableZeebePlay,
-				Status: metav1.ConditionFalse, Reason: "Resizing",
-				Message: fmt.Sprintf("Failed to update the size for the custom resource (%s): (%s)", zeebeplay.Name, err)})
-
-			if err := r.Status().Update(ctx, zeebeplay); err != nil {
-				log.Error(err, "Failed to update ZeebePlay status")
-				return ctrl.Result{}, err
-			}
-
-			return ctrl.Result{}, err
-		}
-
-		// Now, that we update the size we want to requeue the reconciliation
-		// so that we can ensure that we have the latest state of the resource before
-		// update. Also, it will help ensure the desired state on the cluster
-		return ctrl.Result{Requeue: true}, nil
 	}
 
 	// Check if the service already exists, if not create a new one
@@ -364,7 +331,7 @@ func (r *ZeebePlayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	// The following implementation will update the status
 	meta.SetStatusCondition(&zeebeplay.Status.Conditions, metav1.Condition{Type: typeAvailableZeebePlay,
 		Status: metav1.ConditionTrue, Reason: "Reconciling",
-		Message: fmt.Sprintf("Deployment for custom resource (%s) with %d replicas created successfully", zeebeplay.Name, size)})
+		Message: fmt.Sprintf("Deployment for custom resource (%s) created successfully", zeebeplay.Name)})
 
 	if err := r.Status().Update(ctx, zeebeplay); err != nil {
 		log.Error(err, "Failed to update ZeebePlay status")
@@ -387,7 +354,7 @@ func (r *ZeebePlayReconciler) doFinalizerOperationsForZeebePlay(cr *camundaiov1a
 func (r *ZeebePlayReconciler) deploymentForZeebePlay(
 	zeebeplay *camundaiov1alpha1.ZeebePlay) (*appsv1.Deployment, error) {
 	ls := labelsForZeebePlay(zeebeplay.Name)
-	replicas := zeebeplay.Spec.Size
+	replicas := int32(1)
 
 	// Get the Operand image
 	image, err := imageForZeebePlay()

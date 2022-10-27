@@ -5,9 +5,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.9.2
   creationTimestamp: null
-  name: zeebeplays.camunda.io
+  name: zeebeplays.play.camunda.io
 spec:
-  group: camunda.io
+  group: play.camunda.io
   names:
     kind: ZeebePlay
     listKind: ZeebePlayList
@@ -37,14 +37,9 @@ spec:
           spec:
             description: ZeebePlaySpec defines the desired state of ZeebePlay
             properties:
-              size:
-                description: 'Size defines the number of ZeebePlay instances The following
-                  markers will use OpenAPI v3 schema to validate the value More info:
-                  https://book.kubebuilder.io/reference/markers/crd-validation.html'
-                format: int32
-                maximum: 3
-                minimum: 1
-                type: integer
+              deathDate:
+                format: date-time
+                type: string
             type: object
           status:
             description: ZeebePlayStatus defines the observed state of ZeebePlay
