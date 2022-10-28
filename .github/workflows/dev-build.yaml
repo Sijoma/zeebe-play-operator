@@ -30,7 +30,6 @@ jobs:
         uses: docker/setup-buildx-action@79abd3f86f79a9d68a23c75a09a9a85889262adf
         
       - name: Google Cloud authentication & tools
-        if: ${{ github.ref_name == 'main' }}
         id: auth
         uses: camunda-cloud/action-setup-gcloud@v2
         with:
