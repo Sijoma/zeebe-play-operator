@@ -7,9 +7,9 @@ name: Docker Build
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 env:
   IMAGE_NAME: "zeebe-play-operator"
