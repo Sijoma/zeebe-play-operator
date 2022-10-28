@@ -26,7 +26,6 @@ jobs:
           fetch-depth: 0
           
       - name: Google Cloud authentication & tools
-        if: ${{ github.ref_name == 'main' }}
         id: auth
         uses: camunda-cloud/action-setup-gcloud@v2
         with:
