@@ -3,3 +3,8 @@ kind: Kustomization
 
 resources:
 - ../../config/default
+
+images:
+  - name: controller
+    newName: gcr.io/camunda-saas-registry/zeebe-play-operator # {"$imagepolicy": "zeebe-play-operator-system:zeebe-play-operator:name"}
+    newTag: "sha-176855f" # {"$imagepolicy": "zeebe-play-operator-system:zeebe-play-operator:tag"}
