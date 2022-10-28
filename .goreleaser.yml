@@ -2,11 +2,10 @@ builds:
 - env: [CGO_ENABLED=0]
   goos:
   - linux
-  - windows
-  - darwin
+# - darwin
   goarch:
   - amd64
-  - arm64
+# - arm64
 dockers:
 - image_templates: ["gcr.io/camunda-saas-registry/{{ .ProjectName }}:{{ .Version }}-amd64"]
   dockerfile: Dockerfile
