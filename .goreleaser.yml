@@ -21,7 +21,7 @@ dockers:
   - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
   - --label=org.opencontainers.image.revision={{ .FullCommit }}
   - --label=org.opencontainers.image.licenses=APACHE2
-- image_templates: ["ghcr.io/camunda-saas-registry/{{ .ProjectName }}:{{ .Version }}-arm64v8"]
+- image_templates: ["gcr.io/camunda-saas-registry/{{ .ProjectName }}:{{ .Version }}-arm64v8"]
   goarch: arm64
   dockerfile: Dockerfile
   use: buildx
@@ -40,7 +40,7 @@ docker_manifests:
   image_templates:
   - gcr.io/camunda-saas-registry/{{ .ProjectName }}:{{ .Version }}-amd64
   - gcr.io/camunda-saas-registry/{{ .ProjectName }}:{{ .Version }}-arm64v8
-- name_template: ghcr.io/camunda-saas-registry/{{ .ProjectName }}:latest
+- name_template: gcr.io/camunda-saas-registry/{{ .ProjectName }}:latest
   image_templates:
   - gcr.io/camunda-saas-registry/{{ .ProjectName }}:{{ .Version }}-amd64
   - gcr.io/camunda-saas-registry/{{ .ProjectName }}:{{ .Version }}-arm64v8
