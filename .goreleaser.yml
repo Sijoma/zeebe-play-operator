@@ -8,20 +8,20 @@ builds:
   - amd64
   - arm64
 dockers:
-- image_templates: ["ghcr.io/sijoma/{{ .ProjectName }}:{{ .Version }}-amd64"]
+- image_templates: ["gcr.io/camunda-saas-registry/{{ .ProjectName }}:{{ .Version }}-amd64"]
   dockerfile: Dockerfile
   use: buildx
   build_flag_templates:
   - --platform=linux/amd64
   - --label=org.opencontainers.image.title={{ .ProjectName }}
   - --label=org.opencontainers.image.description={{ .ProjectName }}
-  - --label=org.opencontainers.image.url=https://github.com/sijoma/{{ .ProjectName }}
-  - --label=org.opencontainers.image.source=https://github.com/sijoma/{{ .ProjectName }}
+  - --label=org.opencontainers.image.url=https://github.com/camunda-cloud/{{ .ProjectName }}
+  - --label=org.opencontainers.image.source=https://github.com/camunda-cloud/{{ .ProjectName }}
   - --label=org.opencontainers.image.version={{ .Version }}
   - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
   - --label=org.opencontainers.image.revision={{ .FullCommit }}
   - --label=org.opencontainers.image.licenses=APACHE2
-- image_templates: ["ghcr.io/sijoma/{{ .ProjectName }}:{{ .Version }}-arm64v8"]
+- image_templates: ["ghcr.io/camunda-saas-registry/{{ .ProjectName }}:{{ .Version }}-arm64v8"]
   goarch: arm64
   dockerfile: Dockerfile
   use: buildx
@@ -29,18 +29,18 @@ dockers:
   - --platform=linux/arm64/v8
   - --label=org.opencontainers.image.title={{ .ProjectName }}
   - --label=org.opencontainers.image.description={{ .ProjectName }}
-  - --label=org.opencontainers.image.url=https://github.com/caarlos0/{{ .ProjectName }}
-  - --label=org.opencontainers.image.source=https://github.com/caarlos0/{{ .ProjectName }}
+  - --label=org.opencontainers.image.url=https://github.com/camunda-cloud/{{ .ProjectName }}
+  - --label=org.opencontainers.image.source=https://github.com/camunda-cloud/{{ .ProjectName }}
   - --label=org.opencontainers.image.version={{ .Version }}
   - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
   - --label=org.opencontainers.image.revision={{ .FullCommit }}
   - --label=org.opencontainers.image.licenses=APACHE2
 docker_manifests:
-- name_template: ghcr.io/sijoma/{{ .ProjectName }}:{{ .Version }}
+- name_template: gcr.io/camunda-saas-registry/{{ .ProjectName }}:{{ .Version }}
   image_templates:
-  - ghcr.io/sijoma/{{ .ProjectName }}:{{ .Version }}-amd64
-  - ghcr.io/sijoma/{{ .ProjectName }}:{{ .Version }}-arm64v8
-- name_template: ghcr.io/sijoma/{{ .ProjectName }}:latest
+  - gcr.io/camunda-saas-registry/{{ .ProjectName }}:{{ .Version }}-amd64
+  - gcr.io/camunda-saas-registry/{{ .ProjectName }}:{{ .Version }}-arm64v8
+- name_template: ghcr.io/camunda-saas-registry/{{ .ProjectName }}:latest
   image_templates:
-  - ghcr.io/sijoma/{{ .ProjectName }}:{{ .Version }}-amd64
-  - ghcr.io/sijoma/{{ .ProjectName }}:{{ .Version }}-arm64v8
+  - gcr.io/camunda-saas-registry/{{ .ProjectName }}:{{ .Version }}-amd64
+  - gcr.io/camunda-saas-registry/{{ .ProjectName }}:{{ .Version }}-arm64v8
