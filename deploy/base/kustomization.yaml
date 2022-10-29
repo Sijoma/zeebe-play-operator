@@ -5,4 +5,4 @@ resources:
 images:
 - name: controller
   newName: gcr.io/camunda-saas-registry/zeebe-play-operator # {"$imagepolicy": "zeebe-play-operator-system:zeebe-play-operator:name"}
-  newTag: "main-dd17e1f4-1667031164" # {"$imagepolicy": "zeebe-play-operator-system:zeebe-play-operator:tag"}
+  newTag: "main-4c0eee8b-1667031283" # {"$imagepolicy": "zeebe-play-operator-system:zeebe-play-operator:tag"}
