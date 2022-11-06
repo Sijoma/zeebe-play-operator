@@ -1,3 +1,5 @@
+# ARCHIVE - This is not maintained as open-source anymore 
+
 # zeebe-play-operator
 
 Spin up Zeebe-Play FAST 🏃‍♂️. 
